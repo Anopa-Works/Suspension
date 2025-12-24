@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Suspension Specialist | Manicaland Elite Auto Engineering</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Roboto+Condensed:wght@400;700&display=swap" rel="stylesheet">
@@ -12,141 +12,260 @@
             --silver: #A9A9A9;
             --safety-orange: #FF4500;
         }
-        body { font-family: 'Roboto Condensed', sans-serif; background-color: #A9A9A9; color: #1D4F8A; }
-        h1, h2, h3 { font-family: 'Montserrat', sans-serif; text-transform: uppercase; }
-        
-        /* The "Senior" Touch: Custom Animations & Texture */
+
+        /* Mobile-first base */
+        body { font-family: 'Roboto Condensed', sans-serif; background-color: #A9A9A9; color: #1D4F8A; margin: 0; }
+        h1, h2, h3 { font-family: 'Montserrat', sans-serif; text-transform: uppercase; margin: 0; }
+
         .hero-gradient {
-            background: linear-gradient(rgba(29, 79, 138, 0.2), rgba(0, 0, 0, 0.6)), 
+            background: linear-gradient(rgba(29,79,138,0.2), rgba(0,0,0,0.6)),
                         url('https://images.unsplash.com/photo-1507702553912-a15641ec5821?q=80&w=2000&auto=format&fit=crop');
             background-attachment: fixed;
             background-size: cover;
             background-position: center;
         }
         .glass-panel {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255,255,255,0.06);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.12);
         }
         .orange-border-glow:hover {
-            box-shadow: 0 0 30px -5px rgba(255, 69, 0, 0.6);
+            box-shadow: 0 0 30px -5px rgba(255,69,0,0.6);
             border-color: #FF4500;
         }
+
+        /* Lightbox overlay */
+        .lightbox-overlay {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.85);
+            z-index: 9999;
+            padding: 1rem;
+        }
+        .lightbox-overlay.open { display: flex; }
+        .lightbox-inner { max-width: 1200px; width: 100%; max-height: 95vh; position: relative; }
+        .lightbox-img { width: 100%; height: auto; border-radius: 6px; display: block; object-fit: contain; max-height: 85vh; }
+        .lightbox-close, .lightbox-prev, .lightbox-next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: white;
+            background: rgba(0,0,0,0.45);
+            border: none;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .lightbox-close { top: 1rem; right: 1rem; transform: none; }
+        .lightbox-prev { left: 0.25rem; }
+        .lightbox-next { right: 0.25rem; }
+        .lightbox-caption {
+            color: #fff;
+            font-weight: 700;
+            margin-top: 0.5rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-size: 0.85rem;
+        }
+
+        /* responsive masonry fallback handled with columns (mobile-first: 1 column) */
+        .masonry { column-gap: 1rem; }
+        @media (min-width: 640px) { .masonry { column-count: 2; } }
+        @media (min-width: 1024px) { .masonry { column-count: 4; } }
+
+        /* small accessibility focus */
+        a:focus, button:focus, input:focus { outline: 3px solid rgba(255,69,0,0.3); outline-offset: 2px; }
     </style>
 </head>
 <body class="antialiased">
 
-    <nav class="fixed top-0 w-full z-[100] bg-[#1D4F8A] py-5 px-10 flex justify-between items-center shadow-[0_10px_30px_rgba(0,0,0,0.3)]">
+    <!-- NAV: mobile-first -> shows hamburger by default, full menu on large screens -->
+    <nav class="fixed top-0 w-full z-[100] bg-[#1D4F8A] py-4 px-4 sm:px-6 flex items-center justify-between shadow-[0_6px_20px_rgba(0,0,0,0.25)]">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-[#FF4500] rounded-sm flex items-center justify-center font-black text-white italic">SS</div>
-            <span class="text-2xl font-black text-white tracking-tighter">SUSPENSION <span class="text-[#FF4500]">SPECIALIST</span></span>
+            <div class="w-9 h-9 bg-[#FF4500] rounded-sm flex items-center justify-center font-black text-white italic text-sm">SS</div>
+            <span class="text-lg sm:text-2xl font-black text-white tracking-tighter">SUSPENSION <span class="text-[#FF4500]">SPECIALIST</span></span>
         </div>
-        <div class="hidden lg:flex items-center space-x-10 text-white font-bold text-xs tracking-widest uppercase">
+
+        <!-- mobile hamburger -->
+        <div class="flex items-center gap-2">
+            <button id="menuToggle" aria-label="Toggle menu" class="text-white p-2 rounded-md focus:ring">
+                <svg id="menuIcon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- desktop links -->
+        <div id="navLinks" class="hidden lg:flex items-center space-x-8 text-white font-bold text-xs tracking-widest uppercase">
             <a href="#expertise" class="hover:text-[#FF4500] transition-colors">Expertise</a>
             <a href="#portfolio" class="hover:text-[#FF4500] transition-colors">Past Work</a>
-            <a href="#booking" class="bg-[#FF4500] text-white px-8 py-3 rounded-none skew-x-[-12deg] hover:bg-white hover:text-[#FF4500] transition-all duration-300 shadow-lg">
-                <span class="inline-block skew-x-[12deg]">Book Instantly</span>
+            <a href="#booking" class="bg-[#FF4500] text-white px-6 py-2 rounded-none hover:bg-white hover:text-[#FF4500] transition-all duration-300 shadow-lg">
+                <span class="font-black">Book Instantly</span>
             </a>
         </div>
     </nav>
 
-    <header class="relative h-screen w-full flex items-center justify-center overflow-hidden hero-gradient">
-        <div class="relative z-10 container mx-auto px-6 text-center lg:text-left flex flex-col lg:flex-row items-center gap-12">
+    <!-- MOBILE MENU (slides down) -->
+    <div id="mobileMenu" class="fixed top-16 left-0 right-0 z-[90] bg-[#1D4F8A] text-white px-6 py-4 hidden lg:hidden">
+        <div class="flex flex-col gap-4">
+            <a href="#expertise" class="block font-bold uppercase tracking-widest">Expertise</a>
+            <a href="#portfolio" class="block font-bold uppercase tracking-widest">Past Work</a>
+            <a href="#booking" class="block font-bold uppercase tracking-widest bg-[#FF4500] px-4 py-2 text-center rounded">Book Instantly</a>
+        </div>
+    </div>
+
+    <header class="relative pt-20 pb-20 w-full flex items-center justify-center overflow-hidden hero-gradient">
+        <div class="relative z-10 container mx-auto px-4 text-center lg:text-left flex flex-col lg:flex-row items-center gap-8">
             <div class="lg:w-2/3">
-                <div class="inline-flex items-center gap-2 bg-[#FF4500] text-white px-4 py-1 mb-6 font-bold text-sm tracking-tighter italic">
+                <div class="inline-flex items-center gap-2 bg-[#FF4500] text-white px-3 py-1 mb-4 font-bold text-xs tracking-tighter italic">
                     <span class="animate-pulse">●</span> MANICALAND'S #1 SUSPENSION AUTHORITY
                 </div>
-                <h1 class="text-6xl md:text-8xl font-black text-white leading-tight drop-shadow-2xl">
+                <h1 class="text-4xl sm:text-6xl md:text-7xl font-black text-white leading-tight drop-shadow-2xl">
                     PRECISION <br><span class="text-[#FF4500]">ENGINEERING</span>
                 </h1>
-                <p class="mt-6 text-xl text-white/90 max-w-xl font-light leading-relaxed border-l-4 border-[#FF4500] pl-6 bg-black/20 py-4">
+                <p class="mt-4 text-base sm:text-lg text-white/90 max-w-xl font-light leading-relaxed border-l-4 border-[#FF4500] pl-4 bg-black/20 py-3">
                     Stop guessing. Stop calling. See our real-world Manicaland results and secure your slot with a professional who knows Zimbabwean terrain.
                 </p>
-                <div class="mt-10 flex flex-wrap gap-4 justify-center lg:justify-start">
-                    <a href="#booking" class="bg-[#FF4500] text-white text-xl font-black py-5 px-14 hover:translate-y-[-4px] transition-transform shadow-xl">
+                <div class="mt-6 flex flex-wrap gap-3 justify-center lg:justify-start">
+                    <a href="#booking" class="bg-[#FF4500] text-white text-base sm:text-xl font-black py-3 px-6 sm:px-12 hover:translate-y-[-4px] transition-transform shadow-xl">
                         BOOK SERVICE NOW
                     </a>
                 </div>
             </div>
-            <div class="lg:w-1/3 glass-panel p-8 rounded-sm text-white">
-                <div class="grid grid-cols-2 gap-6 text-center">
-                    <div><span class="text-4xl font-black text-[#FF4500]">10+</span><p class="text-[10px] uppercase font-bold tracking-widest opacity-70">Years Exp</p></div>
-                    <div><span class="text-4xl font-black text-[#FF4500]">2k+</span><p class="text-[10px] uppercase font-bold tracking-widest opacity-70">Rebuilds</p></div>
-                    <div class="col-span-2 border-t border-white/20 pt-4"><p class="text-xs italic font-medium uppercase">Serving Mutare, Chipinge, & Nyanga</p></div>
+            <div class="lg:w-1/3 glass-panel p-6 rounded-sm text-white w-full">
+                <div class="grid grid-cols-2 gap-4 text-center">
+                    <div><span class="text-3xl sm:text-4xl font-black text-[#FF4500]">10+</span><p class="text-[9px] uppercase font-bold tracking-widest opacity-70">Years Exp</p></div>
+                    <div><span class="text-3xl sm:text-4xl font-black text-[#FF4500]">2k+</span><p class="text-[9px] uppercase font-bold tracking-widest opacity-70">Rebuilds</p></div>
+                    <div class="col-span-2 border-t border-white/20 pt-3"><p class="text-xs italic font-medium uppercase">Serving Mutare, Chipinge, & Nyanga</p></div>
                 </div>
             </div>
         </div>
     </header>
 
-    <section id="expertise" class="py-32 px-6 lg:px-24 bg-[#A9A9A9]">
+    <main>
+
+    <section id="expertise" class="py-12 px-4 sm:px-6 lg:px-24 bg-[#A9A9A9]">
         <div class="max-w-7xl mx-auto">
-            <div class="flex justify-between items-end mb-20 border-b-2 border-[#1D4F8A]/20 pb-10">
-                <h2 class="text-5xl font-black tracking-tighter">Master <span class="text-[#FF4500]">Capabilities</span></h2>
-                <p class="hidden md:block text-right text-xs font-bold uppercase tracking-widest opacity-60">Engineered for Reliability</p>
+            <div class="flex flex-col sm:flex-row justify-between items-end mb-8 border-b-2 border-[#1D4F8A]/20 pb-6">
+                <h2 class="text-2xl sm:text-4xl font-black tracking-tighter">Master <span class="text-[#FF4500]">Capabilities</span></h2>
+                <p class="hidden sm:block text-right text-xs font-bold uppercase tracking-widest opacity-60">Engineered for Reliability</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 border border-[#1D4F8A]/10">
-                <div class="bg-[#A9A9A9] p-12 border border-[#1D4F8A]/10 hover:bg-[#1D4F8A] group transition-all duration-500">
-                    <div class="text-[#FF4500] text-5xl mb-8 group-hover:scale-110 transition-transform">⚙️</div>
-                    <h3 class="text-2xl font-black mb-4 group-hover:text-white transition-colors">Tie Rod Ends</h3>
-                    <p class="text-[#1D4F8A] group-hover:text-white/70 mb-8 font-medium">Critical steering precision for high-speed stability on tar and gravel.</p>
-                    <a href="#booking" class="text-xs font-black text-[#FF4500] tracking-widest group-hover:bg-[#FF4500] group-hover:text-white py-2 px-4 border border-[#FF4500] transition-all uppercase">Analyze Part</a>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 border border-[#1D4F8A]/10">
+                <div class="bg-[#A9A9A9] p-6 border border-[#1D4F8A]/10 hover:bg-[#1D4F8A] group transition-all duration-500">
+                    <div class="text-[#FF4500] text-4xl mb-4 group-hover:scale-110 transition-transform">⚙️</div>
+                    <h3 class="text-xl font-black mb-2 group-hover:text-white transition-colors">Tie Rod Ends</h3>
+                    <p class="text-[#1D4F8A] group-hover:text-white/70 mb-4 font-medium">Critical steering precision for high-speed stability on tar and gravel.</p>
+                    <a href="#portfolio" class="text-xs font-black text-[#FF4500] tracking-widest group-hover:bg-[#FF4500] group-hover:text-white py-2 px-3 border border-[#FF4500] transition-all uppercase">See examples</a>
                 </div>
-                <div class="bg-[#A9A9A9] p-12 border border-[#1D4F8A]/10 hover:bg-[#1D4F8A] group transition-all duration-500">
-                    <div class="text-[#FF4500] text-5xl mb-8 group-hover:scale-110 transition-transform">⛓️</div>
-                    <h3 class="text-2xl font-black mb-4 group-hover:text-white transition-colors">Control Arms</h3>
-                    <p class="text-[#1D4F8A] group-hover:text-white/70 mb-8 font-medium">Alignment mastery ensuring even tire wear and structural integrity.</p>
-                    <a href="#booking" class="text-xs font-black text-[#FF4500] tracking-widest group-hover:bg-[#FF4500] group-hover:text-white py-2 px-4 border border-[#FF4500] transition-all uppercase">Analyze Part</a>
+                <div class="bg-[#A9A9A9] p-6 border border-[#1D4F8A]/10 hover:bg-[#1D4F8A] group transition-all duration-500">
+                    <div class="text-[#FF4500] text-4xl mb-4 group-hover:scale-110 transition-transform">⛓️</div>
+                    <h3 class="text-xl font-black mb-2 group-hover:text-white transition-colors">Control Arms</h3>
+                    <p class="text-[#1D4F8A] group-hover:text-white/70 mb-4 font-medium">Alignment mastery ensuring even tire wear and structural integrity.</p>
+                    <a href="#portfolio" class="text-xs font-black text-[#FF4500] tracking-widest group-hover:bg-[#FF4500] group-hover:text-white py-2 px-3 border border-[#FF4500] transition-all uppercase">See examples</a>
                 </div>
-                <div class="bg-[#A9A9A9] p-12 border border-[#1D4F8A]/10 hover:bg-[#1D4F8A] group transition-all duration-500">
-                    <div class="text-[#FF4500] text-5xl mb-8 group-hover:scale-110 transition-transform">🏎️</div>
-                    <h3 class="text-2xl font-black mb-4 group-hover:text-white transition-colors">Full Overhauls</h3>
-                    <p class="text-[#1D4F8A] group-hover:text-white/70 mb-8 font-medium">Complete strip-down and rebuild of your vehicle's foundation.</p>
-                    <a href="#booking" class="text-xs font-black text-[#FF4500] tracking-widest group-hover:bg-[#FF4500] group-hover:text-white py-2 px-4 border border-[#FF4500] transition-all uppercase">Analyze Part</a>
+                <div class="bg-[#A9A9A9] p-6 border border-[#1D4F8A]/10 hover:bg-[#1D4F8A] group transition-all duration-500">
+                    <div class="text-[#FF4500] text-4xl mb-4 group-hover:scale-110 transition-transform">🏎️</div>
+                    <h3 class="text-xl font-black mb-2 group-hover:text-white transition-colors">Full Overhauls</h3>
+                    <p class="text-[#1D4F8A] group-hover:text-white/70 mb-4 font-medium">Complete strip-down and rebuild of your vehicle's foundation.</p>
+                    <a href="#portfolio" class="text-xs font-black text-[#FF4500] tracking-widest group-hover:bg-[#FF4500] group-hover:text-white py-2 px-3 border border-[#FF4500] transition-all uppercase">See examples</a>
                 </div>
             </div>
         </div>
     </section>
 
-    <section id="portfolio" class="bg-[#1D4F8A] py-32 px-6">
-        <div class="max-w-7xl mx-auto mb-16">
-            <h2 class="text-4xl font-black text-[#FF4500] tracking-tighter">THE MANICALAND REEL</h2>
-            <p class="text-white opacity-60 uppercase text-xs tracking-[0.4em]">Zero filter. Real repairs.</p>
+    <section id="portfolio" class="bg-[#1D4F8A] py-12 px-4 sm:px-6 lg:px-12">
+        <div class="max-w-7xl mx-auto mb-6">
+            <h2 class="text-2xl sm:text-4xl font-black text-[#FF4500] tracking-tighter">THE MANICALAND REEL</h2>
+            <p class="text-white opacity-60 uppercase text-xs tracking-[0.12em] mt-1">Zero filter. Real repairs.</p>
         </div>
-        <div class="max-w-7xl mx-auto columns-1 md:columns-2 lg:columns-4 gap-4 space-y-4">
-            <div class="relative group overflow-hidden shadow-2xl">
-                <img src="https://images.unsplash.com/photo-1635437536607-b8572f443763?auto=format&fit=crop&q=80&w=600" class="hover:scale-110 transition duration-700 brightness-75 hover:brightness-100" alt="Repair">
-                <div class="absolute bottom-4 left-4 text-white font-bold text-xs uppercase bg-[#FF4500] px-2 py-1">Ford Ranger Hubs</div>
-            </div>
-            <div class="relative group overflow-hidden shadow-2xl">
-                <img src="https://images.unsplash.com/photo-1621939514649-280e2ee25f60?auto=format&fit=crop&q=80&w=600" class="hover:scale-110 transition duration-700" alt="Repair">
-                <div class="absolute bottom-4 left-4 text-white font-bold text-xs uppercase bg-[#FF4500] px-2 py-1">Hilux Overhaul</div>
-            </div>
-            <div class="relative group overflow-hidden shadow-2xl">
-                <img src="https://images.unsplash.com/photo-1599256621730-535171e28e50?auto=format&fit=crop&q=80&w=600" class="hover:scale-110 transition duration-700" alt="Repair">
-                <div class="absolute bottom-4 left-4 text-white font-bold text-xs uppercase bg-[#FF4500] px-2 py-1">Ball Joint Specs</div>
-            </div>
+
+        <!-- Responsive masonry gallery with links to full images; lightbox enabled -->
+        <div class="max-w-7xl mx-auto masonry gap-4 space-y-4">
+            <a href="https://images.unsplash.com/photo-1549921296-3b5f8f9b8f0b?auto=format&fit=crop&q=90&w=1600" data-caption="Shock Absorber Upgrade" class="susp-img relative group overflow-hidden block mb-4 shadow-2xl" data-index="0">
+                <img src="https://images.unsplash.com/photo-1549921296-3b5f8f9b8f0b?auto=format&fit=crop&q=80&w=800"
+                     srcset="https://images.unsplash.com/photo-1549921296-3b5f8f9b8f0b?auto=format&fit=crop&q=60&w=400 400w,
+                             https://images.unsplash.com/photo-1549921296-3b5f8f9b8f0b?auto=format&fit=crop&q=80&w=800 800w,
+                             https://images.unsplash.com/photo-1549921296-3b5f8f9b8f0b?auto=format&fit=crop&q=90&w=1200 1200w"
+                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 48vw, 23vw"
+                     loading="lazy" alt="Shock absorber close-up" class="w-full rounded-md hover:scale-110 transition-transform duration-700 brightness-90">
+                <div class="absolute bottom-3 left-3 text-white font-bold text-xs uppercase bg-[#FF4500] px-2 py-1">Shock Absorber</div>
+            </a>
+
+            <a href="https://images.unsplash.com/photo-1601331833305-9a4b3b9818b8?auto=format&fit=crop&q=90&w=1600" data-caption="Control Arm Replacement" class="susp-img relative group overflow-hidden block mb-4 shadow-2xl" data-index="1">
+                <img src="https://images.unsplash.com/photo-1601331833305-9a4b3b9818b8?auto=format&fit=crop&q=80&w=800"
+                     srcset="https://images.unsplash.com/photo-1601331833305-9a4b3b9818b8?auto=format&fit=crop&q=60&w=400 400w,
+                             https://images.unsplash.com/photo-1601331833305-9a4b3b9818b8?auto=format&fit=crop&q=80&w=800 800w,
+                             https://images.unsplash.com/photo-1601331833305-9a4b3b9818b8?auto=format&fit=crop&q=90&w=1200 1200w"
+                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 48vw, 23vw"
+                     loading="lazy" alt="Control arm replacement" class="w-full rounded-md hover:scale-110 transition-transform duration-700">
+                <div class="absolute bottom-3 left-3 text-white font-bold text-xs uppercase bg-[#FF4500] px-2 py-1">Control Arm</div>
+            </a>
+
+            <a href="https://images.unsplash.com/photo-1592826867003-c3b9f1d2d4b8?auto=format&fit=crop&q=90&w=1600" data-caption="Tie Rod Ends" class="susp-img relative group overflow-hidden block mb-4 shadow-2xl" data-index="2">
+                <img src="https://images.unsplash.com/photo-1592826867003-c3b9f1d2d4b8?auto=format&fit=crop&q=80&w=800"
+                     srcset="https://images.unsplash.com/photo-1592826867003-c3b9f1d2d4b8?auto=format&fit=crop&q=60&w=400 400w,
+                             https://images.unsplash.com/photo-1592826867003-c3b9f1d2d4b8?auto=format&fit=crop&q=80&w=800 800w,
+                             https://images.unsplash.com/photo-1592826867003-c3b9f1d2d4b8?auto=format&fit=crop&q=90&w=1200 1200w"
+                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 48vw, 23vw"
+                     loading="lazy" alt="Tie rod ends on bench" class="w-full rounded-md hover:scale-110 transition-transform duration-700">
+                <div class="absolute bottom-3 left-3 text-white font-bold text-xs uppercase bg-[#FF4500] px-2 py-1">Tie Rod Ends</div>
+            </a>
+
+            <a href="https://images.unsplash.com/photo-1592878849125-5d140e8f0b2b?auto=format&fit=crop&q=90&w=1600" data-caption="Strut Assembly" class="susp-img relative group overflow-hidden block mb-4 shadow-2xl" data-index="3">
+                <img src="https://images.unsplash.com/photo-1592878849125-5d140e8f0b2b?auto=format&fit=crop&q=80&w=800"
+                     srcset="https://images.unsplash.com/photo-1592878849125-5d140e8f0b2b?auto=format&fit=crop&q=60&w=400 400w,
+                             https://images.unsplash.com/photo-1592878849125-5d140e8f0b2b?auto=format&fit=crop&q=80&w=800 800w,
+                             https://images.unsplash.com/photo-1592878849125-5d140e8f0b2b?auto=format&fit=crop&q=90&w=1200 1200w"
+                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 48vw, 23vw"
+                     loading="lazy" alt="Strut assembly" class="w-full rounded-md hover:scale-110 transition-transform duration-700">
+                <div class="absolute bottom-3 left-3 text-white font-bold text-xs uppercase bg-[#FF4500] px-2 py-1">Strut Assembly</div>
+            </a>
+
+            <a href="https://images.unsplash.com/photo-1542362567-b07e54358753?auto=format&fit=crop&q=90&w=1600" data-caption="Bushings & Mounts" class="susp-img relative group overflow-hidden block mb-4 shadow-2xl" data-index="4">
+                <img src="https://images.unsplash.com/photo-1542362567-b07e54358753?auto=format&fit=crop&q=80&w=800"
+                     srcset="https://images.unsplash.com/photo-1542362567-b07e54358753?auto=format&fit=crop&q=60&w=400 400w,
+                             https://images.unsplash.com/photo-1542362567-b07e54358753?auto=format&fit=crop&q=80&w=800 800w,
+                             https://images.unsplash.com/photo-1542362567-b07e54358753?auto=format&fit=crop&q=90&w=1200 1200w"
+                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 48vw, 23vw"
+                     loading="lazy" alt="Suspension bushings and parts" class="w-full rounded-md hover:scale-110 transition-transform duration-700">
+                <div class="absolute bottom-3 left-3 text-white font-bold text-xs uppercase bg-[#FF4500] px-2 py-1">Bushings</div>
+            </a>
+
+            <a href="https://images.unsplash.com/photo-1618279169771-d9cbbce8e7bb?auto=format&fit=crop&q=90&w=1600" data-caption="Alignment & Specs" class="susp-img relative group overflow-hidden block mb-4 shadow-2xl" data-index="5">
+                <img src="https://images.unsplash.com/photo-1618279169771-d9cbbce8e7bb?auto=format&fit=crop&q=80&w=800"
+                     srcset="https://images.unsplash.com/photo-1618279169771-d9cbbce8e7bb?auto=format&fit=crop&q=60&w=400 400w,
+                             https://images.unsplash.com/photo-1618279169771-d9cbbce8e7bb?auto=format&fit=crop&q=80&w=800 800w,
+                             https://images.unsplash.com/photo-1618279169771-d9cbbce8e7bb?auto=format&fit=crop&q=90&w=1200 1200w"
+                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 48vw, 23vw"
+                     loading="lazy" alt="Wheel alignment and specs" class="w-full rounded-md hover:scale-110 transition-transform duration-700">
+                <div class="absolute bottom-3 left-3 text-white font-bold text-xs uppercase bg-[#FF4500] px-2 py-1">Alignment</div>
+            </a>
         </div>
     </section>
 
-    <section id="booking" class="py-32 px-6 bg-[#A9A9A9]">
+    <section id="booking" class="py-12 px-4 sm:px-6 bg-[#A9A9A9]">
         <div class="max-w-5xl mx-auto flex flex-col lg:flex-row bg-[#1D4F8A] shadow-[30px_30px_0px_#FF4500] overflow-hidden">
-            <div class="lg:w-1/3 bg-[#FF4500] p-12 flex flex-col justify-center text-white">
-                <h3 class="text-4xl font-black leading-none mb-6 italic uppercase">Ready for<br>Repair?</h3>
+            <div class="w-full lg:w-1/3 bg-[#FF4500] p-8 flex flex-col justify-center text-white">
+                <h3 class="text-2xl sm:text-3xl font-black leading-none mb-4 italic uppercase">Ready for<br>Repair?</h3>
                 <p class="text-sm font-bold opacity-80 uppercase tracking-widest">Select your date. We'll handle the rest.</p>
             </div>
-            <form class="lg:w-2/3 p-12 bg-[#1D4F8A] grid grid-cols-1 md:grid-cols-2 gap-8">
+            <form class="w-full lg:w-2/3 p-6 bg-[#1D4F8A] grid grid-cols-1 md:grid-cols-2 gap-4" onsubmit="return false;">
                 <div class="flex flex-col gap-2">
                     <label class="text-[10px] text-white/50 uppercase font-bold tracking-widest">Full Name</label>
-                    <input type="text" class="bg-transparent border-b-2 border-[#A9A9A9]/30 text-white focus:border-[#FF4500] outline-none py-2 transition-all">
+                    <input type="text" class="bg-transparent border-b-2 border-[#A9A9A9]/30 text-white focus:border-[#FF4500] outline-none py-2 transition-all" placeholder="Your full name" required>
                 </div>
                 <div class="flex flex-col gap-2">
                     <label class="text-[10px] text-white/50 uppercase font-bold tracking-widest">Vehicle Details</label>
-                    <input type="text" placeholder="Year/Make/Model" class="bg-transparent border-b-2 border-[#A9A9A9]/30 text-white focus:border-[#FF4500] outline-none py-2 transition-all placeholder:text-white/20">
+                    <input type="text" placeholder="Year/Make/Model" class="bg-transparent border-b-2 border-[#A9A9A9]/30 text-white placeholder-gray-300 focus:border-[#FF4500] outline-none py-2 transition-all" required>
                 </div>
                 <div class="flex flex-col gap-2">
                     <label class="text-[10px] text-white/50 uppercase font-bold tracking-widest">Service Date</label>
-                    <input type="date" class="bg-transparent border-b-2 border-[#A9A9A9]/30 text-white focus:border-[#FF4500] outline-none py-2 transition-all">
+                    <input type="date" class="bg-transparent border-b-2 border-[#A9A9A9]/30 text-white focus:border-[#FF4500] outline-none py-2 transition-all" required>
                 </div>
                 <div class="flex flex-col gap-2">
                     <label class="text-[10px] text-white/50 uppercase font-bold tracking-widest">Issue Type</label>
@@ -156,28 +275,163 @@
                         <option class="text-black">Complete Overhaul</option>
                     </select>
                 </div>
-                <button class="md:col-span-2 bg-[#FF4500] text-white py-5 font-black text-xl hover:bg-white hover:text-[#FF4500] transition-all uppercase tracking-widest shadow-xl">
+
+                <div class="md:col-span-2 flex items-center gap-4">
+                    <label class="text-[10px] text-white/50 uppercase font-bold tracking-widest mr-2">Attach Photo (optional)</label>
+                    <input type="file" accept="image/*" class="text-white/80 bg-transparent" />
+                </div>
+
+                <button class="md:col-span-2 bg-[#FF4500] text-white py-3 font-black text-base hover:bg-white hover:text-[#FF4500] transition-all uppercase tracking-widest shadow-xl">
                     Secure Service Slot
                 </button>
             </form>
         </div>
     </section>
 
-    <footer class="bg-[#1D4F8A] border-t-8 border-[#FF4500] py-16 px-6 text-white text-center">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
+    </main>
+
+    <footer class="bg-[#1D4F8A] border-t-8 border-[#FF4500] py-8 px-4 text-white text-center">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
             <div class="text-left">
-                <p class="text-3xl font-black italic">SUSPENSION <span class="text-[#FF4500]">SPECIALIST</span></p>
+                <p class="text-xl sm:text-3xl font-black italic">SUSPENSION <span class="text-[#FF4500]">SPECIALIST</span></p>
                 <p class="opacity-50 text-sm font-bold uppercase tracking-widest">Manicaland Industrial Hub</p>
             </div>
-            <div class="flex gap-8 text-sm font-black uppercase tracking-widest">
+            <div class="flex gap-6 text-sm font-black uppercase tracking-widest">
                 <a href="tel:+263" class="hover:text-[#FF4500]">Call Engineer</a>
                 <a href="https://wa.me/263" class="hover:text-[#FF4500]">WhatsApp</a>
             </div>
         </div>
-        <div class="mt-16 text-[10px] opacity-30 font-bold uppercase tracking-[0.5em]">
+        <div class="mt-8 text-[10px] opacity-30 font-bold uppercase tracking-[0.5em]">
             Optimized for Manicaland | 2025 Automotive Authority
         </div>
     </footer>
 
+    <!-- LIGHTBOX MARKUP -->
+    <div id="lightbox" class="lightbox-overlay" role="dialog" aria-hidden="true" aria-label="Image viewer">
+        <div class="lightbox-inner">
+            <button id="lbClose" class="lightbox-close" aria-label="Close (Esc)">&times;</button>
+            <button id="lbPrev" class="lightbox-prev" aria-label="Previous (Left)">&larr;</button>
+            <button id="lbNext" class="lightbox-next" aria-label="Next (Right)">&rarr;</button>
+            <img id="lbImage" class="lightbox-img" src="" alt="">
+            <div id="lbCaption" class="lightbox-caption"></div>
+        </div>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        const menuToggle = document.getElementById('menuToggle');
+        const mobileMenu = document.getElementById('mobileMenu');
+        const navLinks = document.getElementById('navLinks');
+
+        menuToggle.addEventListener('click', () => {
+            const open = mobileMenu.classList.toggle('hidden') === false;
+            // change icon to X when open
+            const menuIcon = document.getElementById('menuIcon');
+            if (open) {
+                menuIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>';
+            } else {
+                menuIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"/>';
+            }
+        });
+
+        // LIGHTBOX: basic accessible lightbox with keyboard navigation
+        const lightbox = document.getElementById('lightbox');
+        const lbImage = document.getElementById('lbImage');
+        const lbCaption = document.getElementById('lbCaption');
+        const lbClose = document.getElementById('lbClose');
+        const lbPrev = document.getElementById('lbPrev');
+        const lbNext = document.getElementById('lbNext');
+
+        // gather gallery anchors
+        const gallery = Array.from(document.querySelectorAll('.susp-img'));
+        const images = gallery.map(a => ({ href: a.getAttribute('href'), caption: a.dataset.caption || '', el: a }));
+        let currentIndex = 0;
+
+        function openLightbox(index) {
+            const img = images[index];
+            if (!img) return;
+            currentIndex = index;
+            lbImage.src = img.href;
+            lbImage.alt = img.caption || 'Suspension image';
+            lbCaption.textContent = img.caption || '';
+            lightbox.classList.add('open');
+            lightbox.setAttribute('aria-hidden', 'false');
+            // trap focus on close button
+            lbClose.focus();
+        }
+
+        function closeLightbox() {
+            lightbox.classList.remove('open');
+            lightbox.setAttribute('aria-hidden', 'true');
+            lbImage.src = '';
+        }
+
+        function prevImage() {
+            currentIndex = (currentIndex - 1 + images.length) % images.length;
+            openLightbox(currentIndex);
+        }
+
+        function nextImage() {
+            currentIndex = (currentIndex + 1) % images.length;
+            openLightbox(currentIndex);
+        }
+
+        // bind click on gallery
+        gallery.forEach((a, idx) => {
+            a.addEventListener('click', (e) => {
+                e.preventDefault();
+                openLightbox(idx);
+            });
+            // set tabindex for keyboard users to enter
+            a.setAttribute('tabindex', '0');
+            a.addEventListener('keydown', (ev) => {
+                if (ev.key === 'Enter' || ev.key === ' ') {
+                    ev.preventDefault();
+                    openLightbox(idx);
+                }
+            });
+        });
+
+        // controls
+        lbClose.addEventListener('click', closeLightbox);
+        lbPrev.addEventListener('click', prevImage);
+        lbNext.addEventListener('click', nextImage);
+
+        // close when clicking outside image
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) closeLightbox();
+        });
+
+        // keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (lightbox.classList.contains('open')) {
+                if (e.key === 'Escape') closeLightbox();
+                else if (e.key === 'ArrowLeft') prevImage();
+                else if (e.key === 'ArrowRight') nextImage();
+            }
+        });
+
+        // Prevent background scroll when lightbox open
+        const observer = new MutationObserver(() => {
+            if (lightbox.classList.contains('open')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        });
+        observer.observe(lightbox, { attributes: true, attributeFilter: ['class'] });
+
+        // Ensure large-screen nav shows; on resize, hide mobile menu when switching to large
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 1024) {
+                mobileMenu.classList.add('hidden');
+                // reveal desktop nav if hidden
+                navLinks.classList.remove('hidden');
+            } else {
+                // keep desktop nav hidden under lg
+                navLinks.classList.add('hidden');
+            }
+        });
+    </script>
 </body>
 </html>
